@@ -284,6 +284,9 @@ void ofxLayoutElement::update(float dt){
     
     for(ofxLayoutElement* child : childElements){
         child->update(dt);
+        if(!child->visible()){
+                continue;
+        }
         float cW = child->getDimensions().getWidth();
         float cH = child->getDimensions().getHeight();
         float mL = child->getFloatStyle(OSS_KEY::MARGIN_LEFT);
