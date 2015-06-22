@@ -203,7 +203,7 @@ void ofxLayoutElement::hide(){
 bool ofxLayoutElement::visible(){
     bool displayNone = hasStyle(OSS_KEY::DISPLAY) && getOssValueStyle(OSS_KEY::DISPLAY) == OSS_VALUE::NONE;
     bool opacityZero = opacity != 0 && hasStyle(OSS_KEY::OPACITY) && getFloatStyle(OSS_KEY::OPACITY) == 0.0f;
-    return !displayNone;
+    return !displayNone && !opacityZero;
 }
 
 /// |   Cycle Functions  | ///
