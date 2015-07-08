@@ -128,6 +128,12 @@ public:
     void setGlobalFonts(map<string, ofxFontStash* >* gfonts);
     ofxOSS* getClassStyles(string className);
     
+    // Rapid touch blocking
+    float lastTouchTime;
+    float touchBlockTime;
+    bool touchReady;
+    void touchReadyCheck();
+    
 protected:
     ofxLayoutElement contextTreeRoot;
     

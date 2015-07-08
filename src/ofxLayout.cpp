@@ -29,6 +29,11 @@ void ofxLayout::init(int x, int y, int w, int h){
     tuioEnabled = false;
     assets.addBatch(IMAGES_BATCH);
     externalFonts = false;
+    
+    touchReady = true;
+    lastTouchTime = 0.0;
+    touchBlockTime = 0.15;
+    
 }
 
 void ofxLayout::setGlobalFonts(map<string, ofxFontStash*> * gfonts){
@@ -120,6 +125,8 @@ void ofxLayout::mouseReleased(ofMouseEventArgs &args){
     mouseReleasedElement->mouseReleased(args);
     string evtStr = "mouseReleased";
     ofNotifyEvent(mouseReleasedEvt, evtStr, mouseReleasedElement);
+    
+    touchReadyCheck();
 }
 
 void ofxLayout::tuioRemoved(ofxTuioCursor &tuioCursor)
@@ -134,62 +141,73 @@ void ofxLayout::tuioRemoved(ofxTuioCursor &tuioCursor)
         string evtStr = "mouseReleased";
         ofNotifyEvent(mouseReleasedEvt, evtStr, mouseReleasedElement);
         ofNotifyEvent(tuioCursorRemovedEvt, tuioCursor, mouseReleasedElement);
+        
+        touchReadyCheck();
     }
 }
 
 void ofxLayout::mousePressed(ofMouseEventArgs &args){
-    mouseDraggedPt.set(ofPoint());
-    mousePressedPt = ofPoint(args)*mouseTransformation;
-    ofxLayoutElement* mousePressedElement = hittest(mousePressedPt);
-    mousePressedElement->mousePressed(args);
-    string evtStr = "mousePressed";
-    ofNotifyEvent(mousePressedEvt, evtStr, mousePressedElement);
+    if (touchReady){
+        mouseDraggedPt.set(ofPoint());
+        mousePressedPt = ofPoint(args)*mouseTransformation;
+        ofxLayoutElement* mousePressedElement = hittest(mousePressedPt);
+        mousePressedElement->mousePressed(args);
+        string evtStr = "mousePressed";
+        ofNotifyEvent(mousePressedEvt, evtStr, mousePressedElement);
+    }
 }
 
 void ofxLayout::tuioPressed(ofxTuioCursor &tuioCursor)
 {
     if(tuioCursor.getFingerId() == 0)
     {
+        if (touchReady){
         ofPoint loc = ofPoint(tuioCursor.getX()*ofGetWidth(),tuioCursor.getY()*ofGetHeight());
         mouseDraggedPt.set(ofPoint());
         mousePressedPt = loc*mouseTransformation;
-        ofxLayoutElement* mousePressedElement = hittest(mousePressedPt);
-        mousePressedElement->fingerPressed(loc);
-        string evtStr = "mousePressed";
-        ofNotifyEvent(mousePressedEvt, evtStr, mousePressedElement);
-        ofNotifyEvent(tuioCursorAddedEvt, tuioCursor, mousePressedElement);
+            ofxLayoutElement* mousePressedElement = hittest(mousePressedPt);
+            mousePressedElement->fingerPressed(loc);
+            string evtStr = "mousePressed";
+            ofNotifyEvent(mousePressedEvt, evtStr, mousePressedElement);
+            ofNotifyEvent(tuioCursorAddedEvt, tuioCursor, mousePressedElement);
+        }
     }
     
 }
 void ofxLayout::mouseDragged(ofMouseEventArgs &args){
-    
-    mouseDraggedPt = ofPoint(args)*mouseTransformation;
-    ofxLayoutElement* mouseDraggedElement = hittest(mouseDraggedPt);
-    mouseDraggedElement->mouseDragged(args);
-    string evtStr = "mouseDragged";
-    ofNotifyEvent(mouseDraggedEvt, evtStr, mouseDraggedElement);
+
+    if (touchReady) {
+        mouseDraggedPt = ofPoint(args)*mouseTransformation;
+        ofxLayoutElement* mouseDraggedElement = hittest(mouseDraggedPt);
+        mouseDraggedElement->mouseDragged(args);
+        string evtStr = "mouseDragged";
+        ofNotifyEvent(mouseDraggedEvt, evtStr, mouseDraggedElement);
+    }
 }
 
 
 void ofxLayout::mouseMoved(ofMouseEventArgs &args){
+
     mouseMovedPt = ofPoint(args)*mouseTransformation;
     ofxLayoutElement* mouseMovedElement = hittest(mouseMovedPt);
     mouseMovedElement->mouseMoved(args);
     string evtStr = "mouseMoved";
     ofNotifyEvent(mouseMovedEvt, evtStr, mouseMovedElement);
+
 }
 
 void ofxLayout::tuioUpdated(ofxTuioCursor &tuioCursor)
 {
-    if(tuioCursor.getFingerId() == 0)
-    {
-        ofPoint loc = ofPoint(tuioCursor.getX()*ofGetWidth(),tuioCursor.getY()*ofGetHeight());
-        mouseDraggedPt = ofPoint(loc)*mouseTransformation;
-        ofxLayoutElement* mouseDraggedElement = hittest(mouseDraggedPt);
-        mouseDraggedElement->fingerDragged(loc);
-        string evtStr = "mouseDragged";
-        ofNotifyEvent(mouseDraggedEvt, evtStr, mouseDraggedElement);
-        ofNotifyEvent(tuioCursorUpdatedEvt, tuioCursor, mouseDraggedElement);
+    if(tuioCursor.getFingerId() == 0){
+        if (touchReady){
+            ofPoint loc = ofPoint(tuioCursor.getX()*ofGetWidth(),tuioCursor.getY()*ofGetHeight());
+            mouseDraggedPt = ofPoint(loc)*mouseTransformation;
+            ofxLayoutElement* mouseDraggedElement = hittest(mouseDraggedPt);
+            mouseDraggedElement->fingerDragged(loc);
+            string evtStr = "mouseDragged";
+            ofNotifyEvent(mouseDraggedEvt, evtStr, mouseDraggedElement);
+            ofNotifyEvent(tuioCursorUpdatedEvt, tuioCursor, mouseDraggedElement);
+        }
     }
 }
 
@@ -253,7 +271,6 @@ void ofxLayout::unload(){
 
 /// |   Utilities   | ///
 /// | ------------- | ///
-
 
 bool ofxLayout::ready(){
     return assets.isBatchReady(IMAGES_BATCH);
@@ -692,4 +709,14 @@ void ofxLayout::removeElement(ofxLayoutElement* element){
         }
     }
     p->remove(element);
+}
+
+void ofxLayout::touchReadyCheck(){
+    if (ofGetElapsedTimef() - lastTouchTime > touchBlockTime){
+        touchReady = true;
+        lastTouchTime = ofGetElapsedTimef();
+    }
+    else {
+        touchReady = false;
+    }
 }

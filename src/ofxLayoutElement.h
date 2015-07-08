@@ -7,6 +7,7 @@
 #include "ofxMask.h"
 #include "ofxSvg.h"
 #include "ofxHapPlayer.h"
+//#include "ofxAVFVideoPlayer.h"
 
 
 

@@ -441,11 +441,11 @@ void ofxLayoutElement::update(float dt){
     }
     if(hasStyle(OSS_KEY::BACKGROUND_VIDEO)){
         string videoPath = getStringStyle(OSS_KEY::BACKGROUND_VIDEO);
-        
         if(video == NULL){
 #ifdef USE_OFX_TIME_MEASUREMENTS
             TS_START("ofxLayout open video");
 #endif
+//            video = new ofVideoPlayer();
             video = new ofxHapPlayer();
             video->loadAsync(videoPath);
             video->setVolume(0.0f);
@@ -1186,6 +1186,7 @@ void ofxLayoutElement::drawBackgroundVideo(){
         
         if(video != NULL){
             drawBackgroundTexture(video->getTexture());
+//            drawBackgroundTexture(&video->getTexture());
         }
         
     }
