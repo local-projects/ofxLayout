@@ -274,7 +274,8 @@ protected:
     MOUSE_STATE::ENUM mouseState;
     
 //    ofVideoPlayer* video;
-    ofxHapPlayer* video;
+//    ofxHapPlayer* video;
+    ofAVFoundationPlayer* video;
     ofPath* path;
     bool pathFillHack;
     float pathPercent;

@@ -446,10 +446,11 @@ void ofxLayoutElement::update(float dt){
             TS_START("ofxLayout open video");
 #endif
 //            video = new ofVideoPlayer();
-            video = new ofxHapPlayer();
+//            video = new ofxHapPlayer();
+            video = new ofAVFoundationPlayer();
             video->loadAsync(videoPath);
             video->setVolume(0.0f);
-            video->setLoopState(OF_LOOP_NORMAL);
+            video->setLoopState(OF_LOOP_NONE);
             video->play();
             video->setPaused(true);
 #ifdef USE_OFX_TIME_MEASUREMENTS
