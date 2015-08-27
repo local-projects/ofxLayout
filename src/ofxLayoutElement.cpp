@@ -521,7 +521,8 @@ void ofxLayoutElement::draw(ofFbo* fbo){
         if(isBlurring){
             layout->mFboBlur.setBlurOffset(getFloatStyle(OSS_KEY::BLUR));
             layout->mFboBlur.beginDrawScene();
-            ofClear(0.0f, 0.0f, 0.0f, 0.0f);
+            // ~~~ THIS IS NOT RESPECTING ALPHA CHANNEL- NEEDS FIXED
+            ofClear(255.0f, 0.0f, 255.0f, 0.0f);
         }
         
         drawContent();
@@ -529,12 +530,14 @@ void ofxLayoutElement::draw(ofFbo* fbo){
         if(isBlurring){
             layout->mFboBlur.endDrawScene();
             glPushAttrib(GL_BLEND);
-            glDisable(GL_BLEND);
+//            glDisable(GL_BLEND);
             layout->mFboBlur.performBlur();
             ofSetColor(ofColor::white);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             layout->mFboBlur.drawBlurFbo();
+//            layout->mFboBlur.drawSceneFbo();
+
             glDisable(GL_BLEND);
             glPopAttrib();
         }
@@ -1354,7 +1357,12 @@ ofRectangle ofxLayoutElement::getBoundary(){
 }
 
 ofPoint ofxLayoutElement::getGlobalPosition(){
-    return globalTransformations.getTranslation();
+// ~~~~ TRANSFORMATION FIX...
+    if (parent) {
+        return parent->getGlobalPosition()+getPosition();
+    }
+    return getPosition();
+//    return globalTransformations.getTranslation();
 }
 
 ofPoint ofxLayoutElement::getPosition(){
@@ -1483,13 +1491,12 @@ void ofxLayoutElement::updateGlobalTransformations(){
 
 
 ofRectangle ofxLayoutElement::getGlobalClippingRegion(){
-    
     ofRectangle globalClippingRegion = getClippingRegion();
     if(hasParent()){
         globalClippingRegion.translate(parent->getGlobalPosition());
         globalClippingRegion.translate(getPosition());
-        
         globalClippingRegion = parent->getGlobalClippingRegion().getIntersection(globalClippingRegion);
+        
     }
     return globalClippingRegion;
 }

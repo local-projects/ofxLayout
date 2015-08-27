@@ -230,6 +230,7 @@ void ofxLayout::allocateBlurFbo(int w, int h){
     ofFbo::Settings s;
     s.width = w;
     s.height = h;
+    // ~~~ GL_RGBA FOR BLUR ALPHA?
     s.internalformat = GL_RGB;
     s.maxFilter = GL_LINEAR;
 #ifndef OFXLAYOUT_DISABLE_MULTIBLUR
@@ -521,7 +522,9 @@ void ofxLayout::applyStyles(ofxLayoutElement* element){
     
     updateAssets(element);
     for(ofxLayoutElement* child : element->children()){
+        // RESET CHILD ELEMENT STYLES AND RETURN STATE TO "DEFAULT"
         applyStyles(child);
+        child->setState("default");
     }
 }
 
